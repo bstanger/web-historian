@@ -19,11 +19,8 @@ exports.serveAssets = function(res, asset, callback) {
       res.statusCode = 404;
       res.end();
     } else {
-      res.writeHead(200, exports.headers);
-      res.write(data);
-      callback();
+      callback(data);
     }
-    //res.end();
   });
   
 };

@@ -1,6 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 var _ = require('underscore');
+var https = require('https');
 
 /*
  * You will need to reuse the same paths many times over in the course of this sprint.
@@ -9,7 +10,7 @@ var _ = require('underscore');
  * customize it in any way you wish.
  */
 
-var urls = [];
+//var urls = [];
 
 exports.paths = {
   siteAssets: path.join(__dirname, '../web/public'),
@@ -33,7 +34,8 @@ exports.readListOfUrls = function(callback) {
     if (err) {
       console.log('error reading sites.txt');
     } else {
-      urls = data.split('\n');
+      var urls = data.split('\n');
+      urls.pop();
       callback(urls);
     }
     
@@ -41,13 +43,13 @@ exports.readListOfUrls = function(callback) {
 };
 
 exports.isUrlInList = function(url, callback) {
-  exports.readListOfUrls(() => {
+  exports.readListOfUrls((urls) => {
     callback(urls.includes(url));
   });
 };
 
 exports.addUrlToList = function(url, callback) {
-  exports.readListOfUrls(() => {
+  exports.readListOfUrls((urls) => {
     if (urls.includes(url)) {
       callback(false);
     } else {
@@ -71,9 +73,7 @@ exports.addUrlToList = function(url, callback) {
 };
 
 exports.isUrlArchived = function(url, callback) {
-  //console.log('in isUrlArchived ', url);
   fs.access(url, fs.constants.F_OK, (isNotArchived) => {
-    console.log(isNotArchived);
     if (isNotArchived) {
       callback(false);
     } else {
@@ -83,5 +83,28 @@ exports.isUrlArchived = function(url, callback) {
 };
 
 exports.downloadUrls = function(urls) {
-  
+  // console.log(urls);
+  urls.forEach((aUrl) => {
+    var urlName = aUrl;
+    //console.log(urlName);
+    return function() {
+      console.log(urlName);
+      https.get('https://' + urlName, function(resp) {
+        console.log('success!');
+        var body = '';
+        resp.on('data', function(data) {
+          body += data;
+        });
+        resp.on('end', function() {
+          //console.log(body);
+          fs.writeFile(exports.paths.archivedSites + '/' + urlName, body, () => {
+            console.log('written file');
+          });
+        });
+      }).on('error', (err) => {
+        console.log('Error: ' + err.message);
+        // Should remove that non-existent url from sites.txt here
+      });
+    }();
+  });
 };
