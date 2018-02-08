@@ -9,6 +9,8 @@ var _ = require('underscore');
  * customize it in any way you wish.
  */
 
+var urls = [];
+
 exports.paths = {
   siteAssets: path.join(__dirname, '../web/public'),
   archivedSites: path.join(__dirname, '../archives/sites'),
@@ -26,16 +28,52 @@ exports.initialize = function(pathsObj) {
 // modularize your code. Keep it clean!
 
 exports.readListOfUrls = function(callback) {
+  fs.readFile(exports.paths.list, 'utf8', function(err, data) {
+    if (err) {
+      console.log('error reading sites.txt');
+    } else {
+      urls = data.split('\n');
+      callback(urls);
+    }
+    
+  });
 };
 
 exports.isUrlInList = function(url, callback) {
+  exports.readListOfUrls(() => {
+    callback(urls.includes(url));
+  });
 };
 
 exports.addUrlToList = function(url, callback) {
+  exports.readListOfUrls(() => {
+    if (urls.includes(url)) {
+      callback(false);
+    } else {
+      urls.push(url);
+      fs.writeFile(exports.paths.list, urls.join('\n'), 'utf8', (err) => {
+        if (err) {
+          urls.pop();
+          callback(false);
+          console.log('error reading sites.txt');
+        } else {
+          callback(true);
+        }
+      });
+    }
+  });
 };
 
 exports.isUrlArchived = function(url, callback) {
+  fs.access(exports.paths.archivedSites + '/' + url, fs.constants.F_OK, (isNotArchived) => {
+    if (isNotArchived) {
+      callback(false);
+    } else {
+      callback(true);
+    }
+  });
 };
 
 exports.downloadUrls = function(urls) {
+  
 };
