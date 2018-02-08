@@ -12,18 +12,18 @@ exports.headers = {
 
 exports.serveAssets = function(res, asset, callback) {
   var file = asset.split('/')[1];
-  if (asset === 'styles.css') {
-    res.writeHead(200, {'Content-Type': 'text/css'});
-  }
   fs.readFile(asset, function (err, data) {
-    //console.log('trying to access: ' + asset);
+    console.log('trying to access: ' + asset);
     
     if (err) {
       res.statusCode = 404;
+      res.end();
     } else {
+      res.writeHead(200, exports.headers);
       res.write(data);
+      callback();
     }
-    res.end();
+    //res.end();
   });
   
 };

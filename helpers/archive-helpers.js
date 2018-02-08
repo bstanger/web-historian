@@ -28,7 +28,7 @@ exports.initialize = function(pathsObj) {
 // modularize your code. Keep it clean!
 
 exports.readListOfUrls = function(callback) {
-  console.log('in readListOfUrls', exports.paths.list);
+  //console.log('in readListOfUrls', exports.paths.list);
   fs.readFile(exports.paths.list, 'utf8', function(err, data) {
     if (err) {
       console.log('error reading sites.txt');
@@ -52,26 +52,26 @@ exports.addUrlToList = function(url, callback) {
       callback(false);
     } else {
       urls.push(url);
-      console.log(urls.join('\n') + ' to ' + exports.paths.list);
-      //fs.appendFile(exports.paths.list, url + '\n', callback);
-      fs.writeFile(exports.paths.list, urls.join('\n'), function(err) {
-        console.log('asdf');
-        if (err) {
-          urls.pop();
-          callback(false);
-          console.log('error reading sites.txt');
-        } else {
-          console.log('asdf');
-          callback(true);
-        }
-      });
-      console.log('done');
+      //console.log(urls.join('\n') + ' to ' + exports.paths.list);
+      fs.appendFile(exports.paths.list, url + '\n', callback);
+      // fs.writeFile(exports.paths.list, urls.join('\n'), function(err) {
+      //   console.log('asdf');
+      //   if (err) {
+      //     urls.pop();
+      //     callback(false);
+      //     console.log('error reading sites.txt');
+      //   } else {
+      //     console.log('asdf');
+      //     callback(true);
+      //   }
+      // });
+      //console.log('done');
     }
   });
 };
 
 exports.isUrlArchived = function(url, callback) {
-  console.log('in isUrlArchived ', url);
+  //console.log('in isUrlArchived ', url);
   fs.access(url, fs.constants.F_OK, (isNotArchived) => {
     console.log(isNotArchived);
     if (isNotArchived) {
