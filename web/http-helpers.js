@@ -16,7 +16,7 @@ exports.serveAssets = function(res, asset, callback) {
     res.writeHead(200, {'Content-Type': 'text/css'});
   }
   fs.readFile(asset, function (err, data) {
-    console.log('trying to access: ' + asset);
+    //console.log('trying to access: ' + asset);
     
     if (err) {
       res.statusCode = 404;

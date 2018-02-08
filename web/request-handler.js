@@ -16,13 +16,45 @@ var collectPostBody = function(req, callback, res) {
 };
 
 var processInputtedUrl = function(inputtedUrl, res) {
-  archive.isUrlArchived(inputtedUrl, (isArchived) => {
-    if (isArchived) {
-      http.serveAssets(res, archive.paths.archivedSites + '/' + inputtedUrl);
+  // Add previous check for archive.isUrlInList
+  // Check archive.isUrlArchived
+  archive.isUrlInList(inputtedUrl, (isInList) => {
+    if (isInList) {
+      console.log('is already in list');
+      archive.isUrlArchived(archive.paths.archivedSites + '/' + inputtedUrl, (isArchived) => {
+        if (isArchived) {
+          console.log('isArchived');
+          http.serveAssets(res, archive.paths.archivedSites + '/' + inputtedUrl);
+          res.writeHead(302, archive.headers);
+          res.end();
+        } else {
+          console.log('In list but not archived yet');
+          res.writeHead(404, archive.headers);
+          res.end();
+        }
+      });
     } else {
-      console.log('Nope not archived');
+      console.log('Nope not in list');
+      archive.addUrlToList(inputtedUrl, (success) => {
+        console.log(success);
+        res.writeHead(302, archive.headers);
+        res.end();
+      });
     }
   });
+  // archive.isUrlArchived(archive.paths.archivedSites + '/' + inputtedUrl, (isArchived) => {
+  //   if (isArchived) {
+  //     console.log('isArchived');
+  //     http.serveAssets(res, archive.paths.archivedSites + '/' + inputtedUrl);
+  //     res.writeHead(302, archive.headers);
+  //     res.end();
+  //   } else {
+  //     console.log('Nope not archived');
+  //     res.writeHead(404, archive.headers);
+  //     res.end();
+  //     archive.addUrlToList(inputtedUrl);
+  //   }
+  // });
 };
 
 exports.handleRequest = function (req, res) {
@@ -38,6 +70,7 @@ exports.handleRequest = function (req, res) {
     http.serveAssets(res, archive.paths.siteAssets + '/styles.css');
   } else {
     var urlLocation = req.url.split('/')[1];
+    console.log(urlLocation);
     processInputtedUrl(urlLocation, res);
   }
   
